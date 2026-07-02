@@ -1,12 +1,12 @@
-FROM node:18-alpine
+FROM node:22-alpine
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files (including package-lock.json for reproducible installs)
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install 2>&1
+# Install dependencies from the lockfile
+RUN npm ci 2>&1
 
 # Copy source code
 COPY . .

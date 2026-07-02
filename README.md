@@ -38,27 +38,36 @@ docker build -t gong-mcp .
 
 ## Configuring Claude
 
-1. Open Claude Desktop settings
-2. Navigate to the MCP Servers section
-3. Add a new server with the following configuration:
+Add the following to your `claude_desktop_config.json`:
+
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {
-  "command": "docker",
-  "args": [
-    "run",
-    "-it",
-    "--rm",
-    "gong-mcp"
-  ],
-  "env": {
-    "GONG_ACCESS_KEY": "your_access_key_here",
-    "GONG_ACCESS_SECRET": "your_access_secret_here"
+  "mcpServers": {
+    "gong": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e", "GONG_ACCESS_KEY",
+        "-e", "GONG_ACCESS_SECRET",
+        "gong-mcp"
+      ],
+      "env": {
+        "GONG_ACCESS_KEY": "your_access_key_here",
+        "GONG_ACCESS_SECRET": "your_access_secret_here"
+      }
+    }
   }
 }
 ```
 
-4. Replace the placeholder credentials with your actual Gong API credentials from your `.env` file
+Replace the placeholder credentials with your actual Gong API credentials, then fully quit and relaunch Claude Desktop.
+
+> **Note on the flags:** MCP communicates over stdin/stdout, so the container is run with `-i` (interactive) but **not** `-t` — allocating a pseudo-TTY corrupts the JSON-RPC stream. The `-e GONG_ACCESS_KEY -e GONG_ACCESS_SECRET` arguments forward the values from the `env` block *into the container*; without them the container starts with no credentials and exits with a "required" error.
 
 ## Available Tools
 
